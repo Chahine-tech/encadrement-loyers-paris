@@ -55,24 +55,7 @@ app/
   controllers/api/v1/                  # gestion d'erreurs centralisée (rescue_from)
 ```
 
-## Ce que j'ai fait / pas fait
 
-**Fait**
-
-- Un connecteur vers l'API Opendatasoft de la Ville de Paris, isolé du reste de l'application et testé sans réseau (WebMock).
-- Un import idempotent dans un job Sidekiq, avec un historique de chaque exécution (`import_runs`).
-- La comparaison d'un loyer, deux rapports agrégés en SQL et une API versionnée.
-- 62 tests RSpec (modèles, connecteur, import, job, service, endpoints) et un CI GitHub Actions (tests sur PostgreSQL 18, RuboCop, Brakeman, bundler-audit).
-
-**Pas fait**
-
-- **Le front** React + Tailwind.
-- **Une planification de l'import** : les données changent une fois par an, l'import se lance à la main. La suite serait un cron avec `sidekiq-cron`.
-- **Du cache** : les endpoints de référence s'y prêtent bien (cache Redis, vidé à la fin de l'import).
-- **La recherche par adresse** : il faut connaître son quartier, il n'y a pas de géocodage.
-- **De l'authentification** : il n'y a aucun endpoint d'écriture. Un déclenchement de l'import par l'API devrait être protégé.
-- **Le complément de loyer** : un loyer au-dessus du plafond peut être légal si le bailleur justifie un complément. L'API le signale comme `above_max` sans pouvoir le savoir.
-- **Le déploiement** : le `Dockerfile` de production généré par Rails n'a pas été testé.
 
 ## Décisions
 

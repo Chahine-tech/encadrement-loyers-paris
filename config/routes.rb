@@ -11,6 +11,7 @@ Rails.application.routes.draw do
 
       namespace :reports do
         resources :districts, only: :index
+        resources :zones, only: :index
       end
     end
   end

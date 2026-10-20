@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_20_181645) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_193429) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "import_runs", force: :cascade do |t|
+    t.string "status", default: "running", null: false
+    t.integer "years", default: [], null: false, array: true
+    t.integer "records_count", default: 0, null: false
+    t.string "error_class"
+    t.text "error_message"
+    t.datetime "started_at", null: false
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.check_constraint "status::text = ANY (ARRAY['running'::character varying, 'succeeded'::character varying, 'failed'::character varying]::text[])", name: "import_runs_status_values"
+  end
 
   create_table "reference_rents", force: :cascade do |t|
     t.integer "year", null: false

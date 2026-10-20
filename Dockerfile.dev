@@ -8,8 +8,11 @@ RUN apt-get update -qq && \
 
 WORKDIR /rails
 
-# Gems live in a named volume (see compose.yaml) so they survive rebuilds
+# Gems live in a named volume (see compose.yaml) so they survive rebuilds.
+# Installing them in the image too seeds that volume on a fresh machine.
 ENV BUNDLE_PATH=/usr/local/bundle
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
 
 EXPOSE 3000
 CMD ["bin/rails", "server", "-b", "0.0.0.0"]

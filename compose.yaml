@@ -19,7 +19,14 @@ x-app: &app
 services:
   web:
     <<: *app
-    command: bash -c "rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0"
+    # Installs gems added since the image was built, creates/migrates the database, starts Puma
+    command: bash -c "bundle check || bundle install && bin/rails db:prepare && rm -f tmp/pids/server.pid && bin/rails server -b 0.0.0.0"
+    healthcheck:
+      test: ["CMD", "ruby", "-rnet/http", "-e", "exit Net::HTTP.get_response(URI('http://localhost:3000/up')).is_a?(Net::HTTPSuccess)"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+      start_period: 10s
     ports:
       # 3001 on the host: 3000 is often taken by another local project
       - "3001:3000"
@@ -27,6 +34,10 @@ services:
   sidekiq:
     <<: *app
     command: bundle exec sidekiq
+    # Waits for web, which installs gems and migrates the database first
+    depends_on:
+      web:
+        condition: service_healthy
 
   db:
     image: postgres:18.6

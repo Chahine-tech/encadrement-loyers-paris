@@ -14,7 +14,12 @@ class ReferenceRent < ApplicationRecord
   validates :min_per_sqm, :ref_per_sqm, :max_per_sqm, numericality: { greater_than: 0 }
   validate :rent_bounds_are_ordered
 
-  scope :latest_year, -> { where(year: maximum(:year)) }
+  scope :latest_year, -> { where(year: current_year) }
+
+  # Most recent year of the rent control in the table
+  def self.current_year
+    maximum(:year)
+  end
 
   private
 

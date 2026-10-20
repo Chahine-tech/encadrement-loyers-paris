@@ -40,7 +40,7 @@ class RentComparison
     validate!
 
     reference = ReferenceRent.find_by!(
-      year: year || ReferenceRent.maximum(:year),
+      year: year || ReferenceRent.current_year,
       district_id:,
       rooms: [ rooms, MAX_ROOMS_IN_DATASET ].min,
       construction_period:,

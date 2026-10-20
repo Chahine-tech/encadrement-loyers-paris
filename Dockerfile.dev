@@ -1,0 +1,15 @@
+# Development image. The production image is ./Dockerfile.
+ARG RUBY_VERSION=3.4.11
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
+
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /rails
+
+# Gems live in a named volume (see compose.yaml) so they survive rebuilds
+ENV BUNDLE_PATH=/usr/local/bundle
+
+EXPOSE 3000
+CMD ["bin/rails", "server", "-b", "0.0.0.0"]

@@ -88,4 +88,11 @@ RSpec.describe ParisOpenData::Importer do
     expect { importer.call }.to raise_error(ParisOpenData::Client::RequestFailed)
     expect(ImportRun.sole).to have_attributes(status: "failed", error_message: "HTTP 503")
   end
+
+  it "re-raises the original error even if the failure cannot be recorded" do
+    allow(client).to receive(:years).and_raise(ParisOpenData::Client::RequestFailed, "HTTP 503")
+    allow_any_instance_of(ImportRun).to receive(:fail!).and_raise(ActiveRecord::ConnectionNotEstablished)
+
+    expect { importer.call }.to raise_error(ParisOpenData::Client::RequestFailed, "HTTP 503")
+  end
 end

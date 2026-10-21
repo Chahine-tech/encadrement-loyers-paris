@@ -37,7 +37,7 @@ module ParisOpenData
       run.succeed!(records_count: count)
       run
     rescue StandardError => e
-      run&.fail!(e, records_count: count)
+      record_failure(run, e, count)
       raise
     end
 
@@ -59,6 +59,13 @@ module ParisOpenData
       }
     rescue ArgumentError, TypeError => e
       raise InvalidRecord, "cannot map record #{record.inspect}: #{e.message}"
+    end
+
+    # Must not hide the original error, e.g. when the database itself is down
+    def record_failure(run, error, count)
+      run&.fail!(error, records_count: count)
+    rescue StandardError => e
+      Rails.logger.error("Could not record the failed import: #{e.class}: #{e.message}")
     end
 
     def lookup(mapping, record, field)

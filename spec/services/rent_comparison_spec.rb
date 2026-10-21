@@ -86,6 +86,10 @@ RSpec.describe RentComparison do
         .to raise_error(ActiveModel::ValidationError, /Construction period is not included/)
     end
 
+    it "rejects a furnished value that is not a boolean" do
+      expect { compare(furnished: "maybe") }.to raise_error(ActiveModel::ValidationError, /Furnished must be true or false/)
+    end
+
     it "requires furnished to be given" do
       expect { compare(furnished: nil) }.to raise_error(ActiveModel::ValidationError, /Furnished must be true or false/)
     end

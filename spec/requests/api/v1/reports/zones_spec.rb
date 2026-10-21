@@ -41,6 +41,6 @@ RSpec.describe "GET /api/v1/reports/zones", type: :request do
   it "rejects an unknown construction period" do
     get "/api/v1/reports/zones", params: { construction_period: "1900" }
 
-    expect(response).to have_http_status(:bad_request)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 end

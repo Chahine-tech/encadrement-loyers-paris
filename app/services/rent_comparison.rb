@@ -14,7 +14,7 @@ class RentComparison
   attribute :district_id, :integer
   attribute :rooms, :integer
   attribute :construction_period, :string
-  attribute :furnished, :boolean
+  attribute :furnished, StrictBoolean.new
   attribute :surface, :decimal
   attribute :rent, :decimal
   attribute :year, :integer

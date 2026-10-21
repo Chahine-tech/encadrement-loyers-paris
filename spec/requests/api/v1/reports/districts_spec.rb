@@ -30,13 +30,21 @@ RSpec.describe "GET /api/v1/reports/districts", type: :request do
     rows = response.parsed_body["data"]
     expect(rows.map { it.values_at("district_name", "avg_ref_per_sqm") })
       .to eq([ [ "Arsenal", 30.0 ], [ "Belleville", 24.0 ] ])
-    expect(response.parsed_body["meta"]).to eq("year" => 2025, "filters" => { "rooms" => "1", "furnished" => "false" })
+    expect(response.parsed_body["meta"]).to eq("year" => 2025, "filters" => { "rooms" => 1, "furnished" => false })
   end
 
-  it "rejects an unknown construction period instead of returning an empty report" do
-    get "/api/v1/reports/districts", params: { construction_period: "1900" }
+  it "ignores blank filters" do
+    get "/api/v1/reports/districts", params: { rooms: "", furnished: "" }
 
-    expect(response).to have_http_status(:bad_request)
+    expect(response).to have_http_status(:ok)
+    expect(response.parsed_body["meta"]["filters"]).to eq({})
+  end
+
+  it "rejects invalid filters instead of returning a wrong report" do
+    get "/api/v1/reports/districts", params: { rooms: "abc", furnished: "maybe", construction_period: "1900" }
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.parsed_body["details"].keys).to contain_exactly("rooms", "furnished", "construction_period")
   end
 
   it "runs a single SQL query for the whole report (no N+1)" do

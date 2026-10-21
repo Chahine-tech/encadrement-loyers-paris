@@ -3,7 +3,7 @@ module Api
     module Reports
       class DistrictsController < BaseController
         def index
-          render_report(:district)
+          render_report(report.by_district)
         end
       end
     end

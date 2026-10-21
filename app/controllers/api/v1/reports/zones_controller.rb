@@ -3,7 +3,7 @@ module Api
     module Reports
       class ZonesController < BaseController
         def index
-          render_report(:zone)
+          render_report(report.by_zone)
         end
       end
     end

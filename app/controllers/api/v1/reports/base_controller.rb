@@ -1,7 +1,6 @@
 module Api
   module V1
     module Reports
-      # Shared by every report: same filters, same response shape
       class BaseController < Api::V1::BaseController
         private
 
@@ -16,7 +15,7 @@ module Api
           }
         end
 
-        # An unknown enum value would silently match nothing: reject it explicitly instead
+        # Otherwise an unknown value silently matches nothing
         def validate_construction_period!(value)
           return if value.blank? || ReferenceRent.construction_periods.key?(value)
 

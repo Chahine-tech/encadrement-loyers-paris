@@ -1,7 +1,5 @@
 module Api
   module V1
-    # Error handling shared by every v1 endpoint, so actions only describe the happy path.
-    # Errors always have the same shape: { error: <code>, message: <text>, details: {...} }
     class BaseController < ApplicationController
       rescue_from ActiveRecord::RecordNotFound do
         render_error :not_found, "not_found", "No reference rent matches these criteria"
@@ -22,12 +20,11 @@ module Api
         render status:, json: { error: code, message:, details: }.compact
       end
 
-      # ?year=2024, or the most recent year when absent
       def requested_year
         return ReferenceRent.current_year if params[:year].blank?
 
         Integer(params[:year], 10)
-      rescue ArgumentError
+      rescue ArgumentError, TypeError
         raise ActionController::BadRequest, "year must be an integer"
       end
     end

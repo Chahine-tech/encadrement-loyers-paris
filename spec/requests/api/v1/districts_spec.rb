@@ -41,4 +41,10 @@ RSpec.describe "GET /api/v1/districts", type: :request do
     expect(response).to have_http_status(:bad_request)
     expect(response.parsed_body).to include("error" => "bad_request")
   end
+
+  it "rejects a year sent as an array" do
+    get "/api/v1/districts?year[]=2024"
+
+    expect(response).to have_http_status(:bad_request)
+  end
 end

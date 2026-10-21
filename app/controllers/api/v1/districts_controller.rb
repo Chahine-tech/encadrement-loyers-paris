@@ -1,6 +1,5 @@
 module Api
   module V1
-    # Everything the front needs to build the comparison form
     class DistrictsController < BaseController
       def index
         year = requested_year

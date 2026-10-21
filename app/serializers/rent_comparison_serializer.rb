@@ -1,8 +1,4 @@
-# Shapes a RentComparison::Result as the public JSON contract.
-#
-# Kept apart from the service so the API format can change (or get a v2) without touching
-# business logic. Amounts are sent as numbers: Rails would otherwise encode BigDecimal as
-# strings ("975.0") to avoid precision loss; with 2 decimals a JS number is precise enough.
+# Amounts go out as numbers: Rails encodes BigDecimal as strings by default.
 class RentComparisonSerializer
   def initialize(result)
     @result = result

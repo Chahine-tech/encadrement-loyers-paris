@@ -1,12 +1,4 @@
-# Compares the rent a tenant pays with the legal bounds of the Paris rent control.
-#
-# Rents are "hors charges" (excluding service charges). Legally:
-# - above the max ("loyer de référence majoré"), the rent is too high, unless the landlord
-#   justifies a "complément de loyer";
-# - below the min ("loyer de référence minoré"), the landlord may ask for an increase at renewal.
-#
-# A plain Ruby object with ActiveModel: typed attributes cast raw HTTP params ("42.5" -> BigDecimal)
-# and validations give the controller ready-made error messages, without any database table.
+# Compares a rent (excluding charges) with the legal bounds of the Paris rent control.
 class RentComparison
   include ActiveModel::Model
   include ActiveModel::Attributes
@@ -34,8 +26,6 @@ class RentComparison
   validates :surface, numericality: { greater_than: 0, less_than: 1_000 }
   validates :rent, numericality: { greater_than: 0 }
 
-  # Raises ActiveModel::ValidationError on invalid input (-> 422)
-  # and ActiveRecord::RecordNotFound when no reference matches the profile (-> 404).
   def call
     validate!
 
@@ -69,7 +59,6 @@ class RentComparison
     )
   end
 
-  # Bounds are inclusive: paying exactly the max is legal
   def status_for(min_rent, max_rent)
     if rent > max_rent then :above_max
     elsif rent < min_rent then :below_min

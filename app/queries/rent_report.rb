@@ -1,8 +1,4 @@
-# Average reference rents grouped by district or by zone, computed by Postgres (GROUP BY),
-# not in Ruby: one query returns a few dozen rows instead of loading thousands of records.
-#
-# In the dataset, rents are set per zone (14 zones), and the 80 districts of a zone share the
-# same values. The zone report is therefore the meaningful one; the district report shows ties.
+# Rents are set per zone: every district of a zone shares the same values.
 class RentReport
   FILTERS = %i[rooms construction_period furnished].freeze
 

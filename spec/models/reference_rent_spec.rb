@@ -41,12 +41,12 @@ RSpec.describe ReferenceRent do
     end
   end
 
-  describe ".latest_year" do
-    it "returns only rows from the most recent year" do
+  describe ".current_year" do
+    it "returns the most recent year in the table" do
       create(:reference_rent, year: 2024)
-      latest = create(:reference_rent, year: 2025)
+      create(:reference_rent, year: 2025)
 
-      expect(described_class.latest_year).to contain_exactly(latest)
+      expect(described_class.current_year).to eq(2025)
     end
   end
 end

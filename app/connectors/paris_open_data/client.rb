@@ -1,25 +1,19 @@
 module ParisOpenData
-  # HTTP client for the "Logement - Encadrement des loyers" dataset (Opendatasoft Explore API v2.1).
-  #
-  # Only talks HTTP: pagination, timeouts, retries and error translation.
-  # It returns raw API records; mapping them to our schema is the importer's job.
+  # Opendatasoft Explore API v2.1 client for the "Logement - Encadrement des loyers" dataset.
   class Client
     class Error < StandardError; end
-    # Network failure or HTTP error status, after retries are exhausted
     class RequestFailed < Error; end
-    # The API answered, but not in the shape we rely on (dataset or API changed)
     class UnexpectedResponse < Error; end
 
     BASE_URL = "https://opendata.paris.fr".freeze
     RECORDS_PATH = "/api/explore/v2.1/catalog/datasets/logement-encadrement-des-loyers/records".freeze
     FIELDS = %w[annee id_quartier nom_quartier id_zone piece epoque meuble_txt min ref max].freeze
 
-    # The API rejects offset + limit > 10_000 (InvalidRESTParameterError),
-    # so we paginate year by year (~2_560 records each) instead of over the whole dataset.
+    # The API rejects offset + limit > 10_000, hence one pagination per year (~2_560 records).
     MAX_WINDOW = 10_000
     MAX_PAGE_SIZE = 100
 
-    # Offset pagination needs a deterministic order, otherwise pages can overlap or skip rows.
+    # Without a deterministic order, offset pages can overlap or skip rows.
     STABLE_ORDER = "id_quartier,piece,epoque,meuble_txt".freeze
 
     RETRIABLE_STATUSES = [ 429, 500, 502, 503, 504 ].freeze
@@ -31,7 +25,6 @@ module ParisOpenData
       @connection = connection || build_connection(max_retries:, retry_interval:)
     end
 
-    # Years available in the dataset, e.g. [2019, 2020, ..., 2025]
     def years
       body = get(select: "annee", group_by: "annee", limit: MAX_PAGE_SIZE)
       body.fetch("results").map { |row| Integer(row.fetch("annee")) }.sort
@@ -39,8 +32,6 @@ module ParisOpenData
       raise UnexpectedResponse, "cannot read years: #{e.message}"
     end
 
-    # Yields every record of a given year, one page at a time under the hood.
-    # Returns an Enumerator when called without a block, so callers can use each_slice, map...
     def each_record(year:, &block)
       return enum_for(:each_record, year:) unless block
 
@@ -70,8 +61,6 @@ module ParisOpenData
 
     def build_connection(max_retries:, retry_interval:)
       Faraday.new(url: BASE_URL, request: { open_timeout: 5, timeout: 15 }) do |f|
-        # Outermost: retries transient failures (timeouts, 429, 5xx) with exponential backoff and jitter.
-        # Never retries 4xx like 400: sending the same bad request again cannot succeed.
         f.request :retry,
                   max: max_retries,
                   interval: retry_interval,
@@ -83,7 +72,6 @@ module ParisOpenData
                     Faraday::ConnectionFailed, Faraday::TimeoutError,
                     Faraday::ServerError, Faraday::TooManyRequestsError
                   ]
-        # Turns 4xx/5xx into Faraday exceptions (Faraday::ClientError, Faraday::ServerError...)
         f.response :raise_error
         f.response :json, content_type: /\bjson$/
       end

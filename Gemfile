@@ -27,7 +27,7 @@ gem "rack-cors"
 gem "sidekiq", "~> 8.1"
 
 # HTTP client for API connectors, with retry middleware
-gem "faraday", "~> 2.14"
+gem "faraday", "~> 2.15"
 gem "faraday-retry", "~> 2.3"
 
 group :development, :test do
